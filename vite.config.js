@@ -6,15 +6,34 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          // Split large dependencies into separate chunks
-          web3: ['web3', 'ethers'],
-          ui: ['framer-motion', 'react-hot-toast']
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('framer-motion')) {
+              return 'framer-motion'
+            }
+            if (id.includes('react')) {
+              return 'react-vendor'
+            }
+            if (id.includes('web3') || id.includes('ethers')) {
+              return 'web3-vendor'
+            }
+            return 'vendor'
+          }
         }
       }
+    }
+  },
+  esbuild: {
+    supported: {
+      'top-level-await': true
+    }
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
     }
   }
 })
