@@ -38,7 +38,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       >
         {/* Logo Section */}
         <div className="px-6 py-4 border-b border-gray-200">
-          <Link to="/admin" className="flex items-center">
+          <Link to="/" className="flex items-center">
             <img 
               src="/adminlogo.png" 
               alt="GazaDonations" 
