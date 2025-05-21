@@ -103,11 +103,11 @@ const ImpactFeedPage = () => {
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <FaHandHoldingHeart className="text-3xl text-blue-600" />
+              <FaHandHoldingHeart className="text-3xl text-black" />
               <h2 className="text-xl font-bold text-gray-900">Real-time Impact Tracker</h2>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-blue-600">Live Updates</span>
+              <span className="text-sm font-medium text-black">Live Updates</span>
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             </div>
           </div>
@@ -125,8 +125,8 @@ const ImpactFeedPage = () => {
                 className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-xl border border-blue-100"
               >
                 <div className="flex flex-col items-center">
-                  <stat.icon className="text-2xl text-blue-600 mb-2" />
-                  <div className="text-2xl font-bold text-blue-700">{stat.value}</div>
+                  <stat.icon className="text-2xl text-black mb-2" />
+                  <div className="text-2xl font-bold text-black">{stat.value}</div>
                   <div className="text-sm text-gray-600 text-center">{stat.label}</div>
                 </div>
               </motion.div>
@@ -140,13 +140,13 @@ const ImpactFeedPage = () => {
           animate={{ opacity: 1 }}
           className="flex items-center justify-end mb-4 gap-2"
         >
-          <FaShieldAlt className="text-blue-600" />
+          <FaShieldAlt className="text-black" />
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <input
               type="checkbox"
               checked={showAnonymizedData}
               onChange={(e) => setShowAnonymizedData(e.target.checked)}
-              className="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              className="form-checkbox h-5 w-5 text-black rounded border-gray-300 focus:ring-blue-500"
             />
             Protect Identity (Show Anonymized Data)
           </label>
@@ -179,7 +179,7 @@ const ImpactFeedPage = () => {
                   className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-lg transition-all duration-200 ${
                     activeFilter === category.id 
                       ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'border border-gray-200 hover:border-blue-500 hover:text-blue-600'
+                      : 'border border-gray-200 hover:border-blue-500 hover:text-black'
                   }`}
                 >
                   <category.icon />
@@ -210,9 +210,9 @@ const ImpactFeedPage = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                         {post.type === 'initiative' ? (
-                          <FaHospital className="text-2xl text-blue-600" />
+                          <FaHospital className="text-2xl text-black" />
                         ) : (
-                          <FaUserCircle className="text-2xl text-blue-600" />
+                          <FaUserCircle className="text-2xl text-black" />
                         )}
                       </div>
                       <div>
@@ -308,7 +308,7 @@ const ImpactFeedPage = () => {
           <Button 
             variant="outline" 
             size="lg"
-            className="px-8 py-3 text-blue-600 border-blue-600 hover:bg-blue-50"
+            className="px-8 py-3 text-black border-blue-600 hover:bg-blue-50"
           >
             Load More Updates
           </Button>

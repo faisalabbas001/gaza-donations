@@ -197,7 +197,7 @@ const InitiativeApplicationPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="max-w-7xl mx-auto py-8 px-4">
       <div className="mb-8">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-gray-900">
@@ -217,7 +217,7 @@ const InitiativeApplicationPage = () => {
           </div>
         </div>
       </div>
-      <div className="max-w-full mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-sm p-8">
           {/* Progress Bar */}
           <div className="relative mb-8">
