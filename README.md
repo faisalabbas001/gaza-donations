@@ -1,14 +1,94 @@
-# React + Vite
+# 🇵🇸 Give Gaza — Donation Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Give Gaza** is a modern, responsive web application built to support and facilitate donations for humanitarian aid in Gaza. The platform provides an intuitive user experience with a clean interface to raise awareness and encourage contributions.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 Project Features
 
-## Expanding the ESLint configuration
+- 💸 **Donation System**: Clean and clear donation workflow for contributors.
+- 📱 **Responsive Design**: Fully responsive UI using Tailwind CSS.
+- ⚡ **Fast Performance**: Built with Vite for optimized speed and hot reloading.
+- 🌙 **Modern UI/UX**: Minimalist design that works well across devices.
+- 🛠️ **Tech Stack**: React.js, Tailwind CSS, Vite.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# gaza-donations
-# give-gaza
+---
+
+## 🚀 Tech Stack
+
+| Tech         | Description                         |
+|--------------|-------------------------------------|
+| React        | UI Library for building components  |
+| Vite         | Lightning-fast frontend build tool  |
+| Tailwind CSS | Utility-first CSS framework         |
+| GitHub Pages | Deployment                          |
+
+---
+
+## 📂 Folder Structure (Simplified)
+
+
+
+
+---
+
+## 🧑‍💻 Getting Started
+
+### Prerequisites
+
+- Node.js ≥ 16.x
+- npm ≥ 8.x (or use `yarn`)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/WEIBlocks/give-gaza.git
+
+# Navigate to the project folder
+cd give-gaza
+
+# Install dependencies
+npm install
+npm run dev
+🌐 Deployment (GitHub Pages)
+1. Install gh-pages (if not installed):
+bash
+Copy
+Edit
+npm install --save-dev gh-pages
+2. Add the following to package.json:
+json
+Copy
+Edit
+"homepage": "https://WEIBlocks.github.io/give-gaza",
+"scripts": {
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d dist"
+}
+3. Deploy to GitHub Pages:
+bash
+Copy
+Edit
+npm run deploy
+Your site will be live at: https://WEIBlocks.github.io/give-gaza
+
+🙌 Contributing
+We welcome contributions! To contribute:
+
+Fork the repository
+
+Create a new branch (git checkout -b feature/your-feature)
+
+Commit your changes (git commit -m 'Add your feature')
+
+Push to your branch (git push origin feature/your-feature)
+
+Open a Pull Request
+
+📄 License
+This project is licensed under the MIT License.
+
+❤️ Support Gaza
+This platform is made with love and solidarity for the people of Gaza. Every effort helps. Join us in supporting humanity through action.
+
