@@ -26,7 +26,18 @@
 ---
 
 ## 📂 Folder Structure (Simplified)
-
+give-gaza/
+├── public/ # Static files
+├── src/
+│ ├── assets/ # Images & logos
+│ ├── components/ # Reusable UI components
+│ ├── pages/ # Application pages
+│ ├── App.jsx # Root component
+│ └── main.jsx # Entry point
+├── tailwind.config.js # Tailwind CSS config
+├── index.html # Main HTML file
+├── package.json # Project metadata
+└── README.md # You're here!
 
 
 
