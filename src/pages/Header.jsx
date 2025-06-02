@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaUser, FaBell, FaWallet, FaBars, FaTimes, FaChevronDown, FaSignOutAlt } from 'react-icons/fa';
-import Button from '../common/Button';
+import {
+  FaUser,
+  FaBell,
+  FaWallet,
+  FaBars,
+  FaTimes,
+  FaChevronDown,
+  FaSignOutAlt,
+} from 'react-icons/fa';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +21,7 @@ const Header = () => {
     name: 'John Doe',
     type: 'donor', // 'donor', 'initiative', or 'family'
     notifications: 3,
-    balance: '$1,250'
+    balance: '$1,250',
   };
 
   const navigationLinks = [
@@ -33,7 +40,9 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-primary-600">GazaDonations</span>
+            <span className="text-2xl font-bold text-primary-600">
+              GazaDonations
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -43,9 +52,10 @@ const Header = () => {
                 key={link.name}
                 to={link.path}
                 className={`text-sm font-medium transition-colors
-                  ${location.pathname === link.path
-                    ? 'text-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
+                  ${
+                    location.pathname === link.path
+                      ? 'text-primary-600'
+                      : 'text-gray-700 hover:text-primary-600'
                   }`}
               >
                 {link.name}
@@ -82,7 +92,11 @@ const Header = () => {
                     <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                       <FaUser className="text-primary-600" />
                     </div>
-                    <FaChevronDown className={`text-gray-600 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                    <FaChevronDown
+                      className={`text-gray-600 transition-transform ${
+                        isProfileOpen ? 'rotate-180' : ''
+                      }`}
+                    />
                   </button>
 
                   {/* Dropdown Menu */}
@@ -106,7 +120,9 @@ const Header = () => {
                       </Link>
                       <div className="border-t my-1"></div>
                       <button
-                        onClick={() => {/* Handle logout */}}
+                        onClick={() => {
+                          /* Handle logout */
+                        }}
                         className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                       >
                         <FaSignOutAlt className="mr-2" />
@@ -169,7 +185,9 @@ const Header = () => {
                   Dashboard
                 </Link>
                 <button
-                  onClick={() => {/* Handle logout */}}
+                  onClick={() => {
+                    /* Handle logout */
+                  }}
                   className="flex items-center w-full px-3 py-2 rounded-lg text-red-600 hover:bg-gray-100"
                 >
                   <FaSignOutAlt className="mr-2" />
@@ -179,7 +197,9 @@ const Header = () => {
             ) : (
               <div className="space-y-2 pt-2">
                 <Link to="/login" className="block">
-                  <Button variant="outline" className="w-full">Sign In</Button>
+                  <Button variant="outline" className="w-full">
+                    Sign In
+                  </Button>
                 </Link>
                 <Link to="/donate" className="block">
                   <Button className="w-full">Donate Now</Button>
@@ -193,4 +213,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

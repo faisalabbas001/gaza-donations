@@ -13,24 +13,42 @@ const Header = () => {
             <Link to="/" className="text-2xl font-bold text-primary-600">
               GazaDonations
             </Link>
-            
+
             <nav className="hidden md:flex space-x-8 ml-10">
-              <Link to="/initiatives" className="text-gray-700 hover:text-primary-600">
+              <Link
+                to="/initiatives"
+                className="text-gray-700 hover:text-primary-600"
+              >
                 Initiatives
               </Link>
-              <Link to="/about" className="text-gray-700 hover:text-primary-600">
+              <Link
+                to="/about"
+                className="text-gray-700 hover:text-primary-600"
+              >
                 About
               </Link>
-              <Link to="/impact" className="text-gray-700 hover:text-primary-600">
+              <Link
+                to="/impact"
+                className="text-gray-700 hover:text-primary-600"
+              >
                 Impact
               </Link>
-              <Link to="/donate" className="text-gray-700 hover:text-primary-600">
+              <Link
+                to="/donate"
+                className="text-gray-700 hover:text-primary-600"
+              >
                 Donate
               </Link>
-              <Link to="/apply" className="text-gray-700 hover:text-primary-600">
+              <Link
+                to="/apply"
+                className="text-gray-700 hover:text-primary-600"
+              >
                 Apply
               </Link>
-              <Link to="/admin" className="text-gray-700 hover:text-primary-600">
+              <Link
+                to="/admin"
+                className="text-gray-700 hover:text-primary-600"
+              >
                 Admin
               </Link>
             </nav>
@@ -51,12 +69,21 @@ const Header = () => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                  d={
+                    isMenuOpen
+                      ? 'M6 18L18 6M6 6l12 12'
+                      : 'M4 6h16M4 12h16M4 18h16'
+                  }
                 />
               </svg>
             </button>
@@ -105,4 +132,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

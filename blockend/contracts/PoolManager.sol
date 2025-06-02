@@ -258,14 +258,18 @@ contract PoolManager is ReentrancyGuard, AccessControl {
      * @dev Get total number of donations
      */
     function getTotalDonations() external view returns (uint256) {
-        return donations.length;
+        return totalDonated;
     }
 
     /**
      * @dev Get total number of distributions
      */
-    function getTotalDistributions() external view returns (uint256) {
-        return distributions.length;
+    function getTotalDistributions() public view returns (uint256) {
+        uint256 total = 0;
+        for (uint256 i = 0; i < distributions.length; i++) {
+            total += distributions[i].recipients.length;
+        }
+        return total;
     }
 
     /**
@@ -346,12 +350,13 @@ contract PoolManager is ReentrancyGuard, AccessControl {
             uint256 _totalDistributions
         )
     {
+        uint256 totalDistributions = getTotalDistributions();
         return (
             totalDonated,
             totalDistributed,
             currentBalance,
             donations.length,
-            distributions.length
+            totalDistributions
         );
     }
 
@@ -379,7 +384,7 @@ contract PoolManager is ReentrancyGuard, AccessControl {
     /**
      * @dev Emergency function to sync balance (in case of direct transfers)
      */
-    function syncBalance() external {
+    function syncBalance() external onlyOwner {
         uint256 actualBalance = token.balanceOf(address(this));
         if (actualBalance > currentBalance) {
             uint256 difference = actualBalance - currentBalance;
