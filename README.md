@@ -85,5 +85,5 @@ Open a Pull Request
 This project is licensed under the MIT License.
 
 ❤️ Support Gaza
-This platform is made with love and solidarity for the people of Gaza. Every effort helps. Join us in supporting humanity through action.
+This platform is made with love and solidarity for the people of Gaza. Every effort helps. Join us in supporting humanity through action..
 
