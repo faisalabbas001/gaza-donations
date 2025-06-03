@@ -1,4 +1,4 @@
-# 🇵🇸 Give Gaza — Donation Platform
+# 🇵🇸 Give Gaza - Donation Platform
 
 **Give Gaza** is a modern, responsive web application built to support and facilitate donations for humanitarian aid in Gaza. The platform provides an intuitive user experience with a clean interface to raise awareness and encourage contributions.
 
