@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBitcoin, FaEthereum, FaCreditCard, FaUsers, FaLightbulb, FaHeart, FaHandHoldingHeart, FaHome, FaLeaf, FaChild, FaHandsHelping, FaCheck, FaLock, FaPaypal, FaPrint, FaSpinner } from 'react-icons/fa';
+import { FaBitcoin, FaEthereum, FaCreditCard, FaUsers, FaLightbulb, FaHeart, FaHandHoldingHeart, FaHome, FaLeaf, FaChild, FaHandsHelping, FaCheck, FaLock, FaPaypal, FaPrint, FaSpinner, FaCopy } from 'react-icons/fa';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
+import { MdWallet } from "react-icons/md";
+
 import { useNavigate } from 'react-router-dom';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance, useDisconnect } from 'wagmi';
 import { useAppKit } from '@reown/appkit/react';
+
 const DonationPage = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -28,10 +31,15 @@ const DonationPage = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const navigate = useNavigate();
 
   const { address, isConnected } = useAccount();
   const { open } = useAppKit();
+  const { disconnect } = useDisconnect();
+  const { data: balanceData } = useBalance({
+    address: address,
+  });
   const predefinedAmounts = [10, 25, 50, 100, 250, 500];
   const recurringOptions = ['monthly', 'quarterly', 'yearly'];
 
@@ -42,8 +50,6 @@ const DonationPage = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
-
-  
 
   const handleBack = () => {
     navigate("/")
@@ -89,6 +95,11 @@ const DonationPage = () => {
 
   const handlePrintReceipt = () => {
     window.print();
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Address copied to clipboard!');
   };
 
   // Animation variants
@@ -171,6 +182,133 @@ const DonationPage = () => {
         </Button>
       </div>
     </motion.div>
+  );
+
+  // Add this helper function
+  const formatAddress = (addr) => {
+    if (!addr) return '';
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
+
+  const WalletInfo = () => (
+    <div className="flex flex-col items-center space-y-2"  onClick={(e) => {
+      e.stopPropagation();
+      setShowDisconnectModal(true);
+    }}>
+      <div className="flex items-center space-x-2">
+        <div 
+          className="cursor-pointer hover:text-primary-600 font-medium"
+         
+        >
+          {formatAddress(address)}
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            copyToClipboard(address);
+          }}
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <FaCopy className="w-4 h-4 text-gray-500 hover:text-primary-600" />
+        </button>
+      </div>
+      <div className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+        {Number(balanceData?.formatted).toFixed(4)} {balanceData?.symbol}
+      </div>
+    </div>
+  );
+
+  const DisconnectModal = () => (
+    <AnimatePresence>
+      {showDisconnectModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setShowDisconnectModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0.95 }}
+            className="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold mb-4">Wallet Connection</h3>
+            <div className="mb-6 space-y-2">
+              <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-600">Connected with</span>
+                <span className="font-medium">{formatAddress(address)}</span>
+              </div>
+              <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                <span className="text-gray-600">Balance</span>
+                <span className="font-medium">
+                  {Number(balanceData?.formatted).toFixed(4)} {balanceData?.symbol}
+                </span>
+              </div>
+            </div>
+            <div className="flex space-x-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowDisconnectModal(false)}
+                className="w-1/2"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  disconnect();
+                  setShowDisconnectModal(false);
+                }}
+                className="w-1/2 bg-red-600 hover:bg-red-700"
+              >
+                Disconnect
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  // Update the payment method section
+  const renderPaymentMethods = () => (
+    <div className="mb-8">
+      <h3 className="text-xl font-semibold mb-4">Payment Method</h3>
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { id: 'card', icon: FaCreditCard, label: 'Credit Card' },
+          {
+            id: 'metamask',
+            icon: FaCreditCard,
+            label: isConnected ? <WalletInfo /> : 'Connect Wallet'
+          },
+        ].map(({ id, icon: Icon, label }) => (
+          <button
+            key={id}
+            onClick={() => {
+              if (id === 'metamask' && !isConnected) {
+                open();
+              } else {
+                setFormData(prev => ({ ...prev, paymentMethod: id }));
+              }
+            }}
+            className={`
+              p-4 rounded-xl border-2 transition-all cursor-pointer transform hover:scale-105
+              ${formData.paymentMethod === id
+                ? 'border-primary-600 bg-primary-50'
+                : 'border-gray-200'
+              }
+            `}
+          >
+            <Icon className="text-3xl mb-2 mx-auto" />
+            <span className="block text-sm">{label}</span>
+          </button>
+        ))}
+      </div>
+      <DisconnectModal />
+    </div>
   );
 
   return (
@@ -279,42 +417,8 @@ const DonationPage = () => {
               )}
             </div>
 
-           
-
             {/* Payment Method */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-4">Payment Method</h3>
-             <div className="grid grid-cols-3 gap-4">
-                {[
-                  { id: 'card', icon: FaCreditCard, label: 'Credit Card' },
-                  // { id: 'bitcoin', icon: FaBitcoin, label: 'Bitcoin' },
-                  // { id: 'ethereum', icon: FaEthereum, label: 'Ethereum' },
-                  { id: 'metamask', icon: FaCreditCard, label: 'Metamask' },
-                  // { id: 'paypal', icon: FaPaypal, label: 'PayPal' }
-                ].map(({ id, icon: Icon, label }) => (
-                  <button
-                    key={id}
-                    onClick={() => {
-                      if (id === 'metamask') {
-                        open();
-                      } else {
-                        setFormData(prev => ({ ...prev, paymentMethod: id }));
-                      }
-                    }}
-                    className={`
-                      p-4 rounded-xl border-2 transition-all cursor-pointer transform hover:scale-105
-                      ${formData.paymentMethod === id
-                        ? 'border-primary-600 bg-primary-50'
-                        : 'border-gray-200'
-                      }
-                    `}
-                  >
-                    <Icon className="text-3xl mb-2 mx-auto" />
-                    <span className="block text-sm">{label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {renderPaymentMethods()}
 
             {/* Message */}
             <div className="mb-8">
