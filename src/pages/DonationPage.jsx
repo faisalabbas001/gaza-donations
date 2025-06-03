@@ -4,7 +4,8 @@ import { FaBitcoin, FaEthereum, FaCreditCard, FaUsers, FaLightbulb, FaHeart, FaH
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-
+import { useAccount } from 'wagmi';
+import { useAppKit } from '@reown/appkit/react';
 const DonationPage = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -29,6 +30,8 @@ const DonationPage = () => {
   const [receiptData, setReceiptData] = useState(null);
   const navigate = useNavigate();
 
+  const { address, isConnected } = useAccount();
+  const { open } = useAppKit();
   const predefinedAmounts = [10, 25, 50, 100, 250, 500];
   const recurringOptions = ['monthly', 'quarterly', 'yearly'];
 
@@ -276,21 +279,30 @@ const DonationPage = () => {
               )}
             </div>
 
+           
+
             {/* Payment Method */}
             <div className="mb-8">
               <h3 className="text-xl font-semibold mb-4">Payment Method</h3>
-              <div className="grid grid-cols-3 gap-4">
+             <div className="grid grid-cols-3 gap-4">
                 {[
                   { id: 'card', icon: FaCreditCard, label: 'Credit Card' },
-                  { id: 'bitcoin', icon: FaBitcoin, label: 'Bitcoin' },
-                  { id: 'ethereum', icon: FaEthereum, label: 'Ethereum' },
-                  { id: 'paypal', icon: FaPaypal, label: 'PayPal' }
+                  // { id: 'bitcoin', icon: FaBitcoin, label: 'Bitcoin' },
+                  // { id: 'ethereum', icon: FaEthereum, label: 'Ethereum' },
+                  { id: 'metamask', icon: FaCreditCard, label: 'Metamask' },
+                  // { id: 'paypal', icon: FaPaypal, label: 'PayPal' }
                 ].map(({ id, icon: Icon, label }) => (
                   <button
                     key={id}
-                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: id }))}
+                    onClick={() => {
+                      if (id === 'metamask') {
+                        open();
+                      } else {
+                        setFormData(prev => ({ ...prev, paymentMethod: id }));
+                      }
+                    }}
                     className={`
-                      p-4 rounded-xl border-2 transition-all transform hover:scale-105
+                      p-4 rounded-xl border-2 transition-all cursor-pointer transform hover:scale-105
                       ${formData.paymentMethod === id
                         ? 'border-primary-600 bg-primary-50'
                         : 'border-gray-200'

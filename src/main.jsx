@@ -6,11 +6,12 @@ import { AppKitProvider } from '../web3Utils/config.jsx';
 import { ContractProvider } from '../web3Utils/blockchainContext.jsx';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+ <StrictMode>
     <AppKitProvider>
       <ContractProvider>
         <App />
       </ContractProvider>
     </AppKitProvider>
-  </StrictMode>
+    </StrictMode> 
+
 );

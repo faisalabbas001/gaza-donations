@@ -59,7 +59,9 @@ const Header = () => {
               <Button variant="outline">Login</Button>
             </Link>
             <Link to="/donate">
-              <Button>Donate Now</Button>
+              <Button variant="outline" className="cursor-pointer">
+                Donate Now
+              </Button>
             </Link>
           </div>
 
