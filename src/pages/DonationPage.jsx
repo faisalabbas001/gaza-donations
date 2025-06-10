@@ -4,6 +4,7 @@ import { FaBitcoin, FaEthereum, FaCreditCard, FaUsers, FaLightbulb, FaHeart, FaH
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 import { MdWallet } from "react-icons/md";
+import axios from 'axios';
 
 import { useNavigate } from 'react-router-dom';
 import { useAccount, useBalance, useDisconnect } from 'wagmi';
@@ -55,40 +56,110 @@ const DonationPage = () => {
     navigate("/")
   };
 
+  // Update validateForm function
   const validateForm = () => {
     const errors = {};
-    if (!formData.donorName) errors.donorName = 'Name is required';
-    if (!formData.email) errors.email = 'Email is required';
-    if (!formData.customAmount && !formData.amount) errors.amount = 'Please select an amount';
-    
+
+    // Check amount (either custom or predefined)
+    const donationAmount = formData.customAmount || formData.amount;
+    if (!donationAmount || donationAmount <= 0) {
+      errors.amount = 'Please enter a valid donation amount';
+    }
+
+    // Check if wallet is connected
+    if (!address) {
+      errors.wallet = 'Please connect your wallet to make a donation';
+    }
+
+    // No need to validate isAnonymous as it's a boolean with default false
+    // No need to validate transactionHash as it's generated during submission
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  // Update handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate wallet connection first
+    if (!isConnected) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    // Validate form
     if (!validateForm()) {
-      toast.error('Please fill in all required fields');
+      // Show all validation errors
+      if (formErrors.amount) {
+        toast.error(formErrors.amount);
+      }
+      if (formErrors.wallet) {
+        toast.error(formErrors.wallet);
+      }
       return;
     }
 
     setIsProcessing(true);
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generate receipt data
-      const receipt = {
-        id: `TXN-${Date.now()}`,
-        date: new Date().toLocaleDateString(),
-        amount: formData.customAmount || formData.amount
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        toast.error('Please login first');
+        navigate('/login/donor');
+        return;
+      }
+
+      // Generate transaction hash
+      const dummyTransactionHash = '0x' + Math.random().toString(16).slice(2) + Date.now().toString(16);
+
+      // Prepare donation data with required fields
+      const donationData = {
+        amount: Number(formData.customAmount || formData.amount),
+        anonymous: formData.isAnonymous,
+        transactionHash: dummyTransactionHash,
+        donorWalletAddress: address // Using actual connected wallet address
       };
-      
-      setReceiptData(receipt);
-      setIsProcessing(false);
-      setShowConfirmation(true);
+
+      // Validate all required fields are present
+      if (!donationData.amount || !donationData.donorWalletAddress) {
+        throw new Error('Missing required fields');
+      }
+
+      // Send data to API
+      const response = await axios.post(
+        'http://localhost:5000/api/v1/donations', 
+        donationData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        const receipt = {
+          id: dummyTransactionHash,
+          date: new Date().toLocaleDateString(),
+          amount: donationData.amount
+        };
+        
+        setReceiptData(receipt);
+        setIsSuccess(true);
+        setShowConfirmation(true);
+        toast.success('Donation processed successfully!');
+      }
     } catch (error) {
       console.error('Payment processing error:', error);
+      if (error.response?.status === 401) {
+        toast.error('Please login again');
+        navigate('/login/donor');
+      } else {
+        toast.error(error.message || error.response?.data?.message || 'Failed to process donation');
+      }
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -383,9 +454,14 @@ const DonationPage = () => {
                   name="customAmount"
                   value={formData.customAmount}
                   onChange={handleInputChange}
-                  className="w-full p-3 border rounded-lg"
+                  className={`w-full p-3 border rounded-lg ${
+                    formErrors.amount ? 'border-red-500' : ''
+                  }`}
                   placeholder="Enter custom amount"
                 />
+                {formErrors.amount && (
+                  <p className="mt-1 text-red-500 text-sm">{formErrors.amount}</p>
+                )}
               </div>
             </div>
 
