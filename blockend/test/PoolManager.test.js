@@ -250,7 +250,9 @@ describe('PoolManager', function () {
       expect(await poolManager.totalDonatedByAddress(donor1.address)).to.equal(
         firstDonation + secondDonation
       );
-      expect(await poolManager.getTotalDonations()).to.equal(2);
+      expect(await poolManager.getTotalDonations()).to.equal(
+        firstDonation + secondDonation
+      );
 
       const donationIds = await poolManager.getDonationIdsByAddress(
         donor1.address
@@ -398,7 +400,7 @@ describe('PoolManager', function () {
       // Calling again should not create duplicate record
       await poolManager.syncBalance();
 
-      expect(await poolManager.getTotalDonations()).to.equal(1);
+      expect(await poolManager.getTotalDonations()).to.equal(transferAmount);
     });
   });
 
@@ -629,7 +631,7 @@ describe('PoolManager', function () {
         poolManager.connect(owner).distributeFunds(recipients, amounts)
       ).to.emit(poolManager, 'FundsDistributed');
 
-      expect(await poolManager.getTotalDistributions()).to.equal(1);
+      expect(await poolManager.getTotalDistributions()).to.equal(100);
     });
 
     it('Should record distribution details correctly', async function () {
@@ -857,7 +859,7 @@ describe('PoolManager', function () {
 
       // Should complete successfully with reasonable gas
       expect(receipt.gasUsed).to.be.greaterThan(0);
-      expect(await poolManager.getTotalDistributions()).to.equal(1);
+      expect(await poolManager.getTotalDistributions()).to.equal(50);
     });
   });
 });

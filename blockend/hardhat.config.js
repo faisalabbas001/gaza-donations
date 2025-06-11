@@ -7,9 +7,9 @@ module.exports = {
     hardhat: {
       chainId: 1337,
     },
-    sepolia: {
-      url: "",
-      accounts: [""],
-    },
+    // sepolia: {
+    //   url: "",
+    //   accounts: [""],
+    // },
   },
 };
