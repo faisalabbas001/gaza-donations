@@ -17,6 +17,23 @@ const ReviewStep = ({
   isSubmitting,
   onEdit 
 }) => {
+  // Add local state for confirmation
+  const [confirmed, setConfirmed] = React.useState(false);
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!confirmed) {
+      toast.error('Please confirm the accuracy of information');
+      return;
+    }
+    if (!formik.isValid) {
+      toast.error('Please check all required fields');
+      return;
+    }
+    await onSubmit(formik.values);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -60,7 +77,7 @@ const ReviewStep = ({
           <ReviewField 
             label="Social Media Links" 
             value={
-              formik.values.basicInfo.socialMediaLinks.length > 0 
+              formik.values.basicInfo.socialMediaLinks?.length > 0 
                 ? formik.values.basicInfo.socialMediaLinks
                     .filter(link => link.platform && link.url)
                     .map(link => `${link.platform}: ${link.url}`)
@@ -123,8 +140,8 @@ const ReviewStep = ({
           <input
             type="checkbox"
             id="confirmAccuracy"
-            checked={formik.values.confirmAccuracy}
-            onChange={(e) => formik.setFieldValue('confirmAccuracy', e.target.checked)}
+            checked={confirmed}
+            onChange={(e) => setConfirmed(e.target.checked)}
             className="mt-1"
           />
           <label htmlFor="confirmAccuracy" className="text-sm text-gray-700">
@@ -132,7 +149,7 @@ const ReviewStep = ({
             I understand that providing false information may result in the rejection of my application.
           </label>
         </div>
-        {!formik.values.confirmAccuracy && formik.touched.confirmAccuracy && (
+        {!confirmed && (
           <div className="mt-2 text-red-500 text-sm flex items-center gap-2">
             <FaExclamationCircle className="text-xs" />
             <span>Please confirm the accuracy of your information</span>
@@ -144,10 +161,10 @@ const ReviewStep = ({
       <div className="flex justify-end mt-6">
         <button
           type="button"
-          onClick={onSubmit}
-          disabled={isSubmitting || !formik.values.confirmAccuracy}
+          onClick={handleSubmit}
+          disabled={isSubmitting || !confirmed}
           className={`w-full sm:w-auto px-6 py-2 rounded-lg text-white flex items-center justify-center gap-2
-            ${isSubmitting || !formik.values.confirmAccuracy ? 
+            ${isSubmitting || !confirmed ? 
               'bg-gray-400 cursor-not-allowed' : 
               'bg-green-500 hover:bg-green-600'}`}
         >

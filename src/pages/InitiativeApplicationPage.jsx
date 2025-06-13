@@ -2,30 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaCheck, FaClock } from 'react-icons/fa';
 import * as Yup from 'yup';
-import toast from 'react-hot-toast'
+import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 const InitiativeApplicationPage = () => {
+  const { auth } = useAuth(); // Get authenticated user
+  const [loading, setLoading] = useState(false);
+
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
   // Modified form states for each step
   const [basicInfo, setBasicInfo] = useState({
+    fullName: '',
+    contactNumber: '',
+    contactEmail: '',
     registrationNumber: '',
-    legalStatus: '',
-    areaOfOperation: ''
+    legalStatus: '', // Will be updated with correct enum values
+    location: '',
+    AreaOfOperation: '',
+    urgencyLevel: 'medium' // Default value
   });
   
   const [organizationInfo, setOrganizationInfo] = useState({
     servicesOffered: '',
-    numberOfStaff: '',
-    cryptoWallet: ''
+    NumberOfVolunteers: '',
+    cryptoWallet: {
+      address: '',
+      network: 'ERC20',
+      currency: 'USDT'
+    },
+    monthlyNeed: '',
+    totalReceived: 0,
+    lastDistribution: '',
+    nextDistribution: ''
   });
   
   const [documents, setDocuments] = useState({
-    pastWorkReports: null,
-    registrationDocument: null,
-    additionalDocuments: null
+    registrationDocuments: null,
+    PastWorkReport: null,
+    verificationDocuments: null
   });
 
   // Validation states
@@ -34,28 +52,53 @@ const InitiativeApplicationPage = () => {
 
   // Updated validation schemas
   const stepOneValidation = Yup.object().shape({
-    registrationNumber: Yup.string()
-      .required('Registration number is required'),
+    fullName: Yup.string().required('Please provide a name'),
+    contactNumber: Yup.string()
+      .required('Please provide a contact number')
+      .matches(/^\+[1-9]\d{1,14}$/, 'Phone number must be in international format (e.g., +123456789)'),
+    contactEmail: Yup.string()
+      .email('Invalid email format')
+      .required('Please provide a contact email'),
+    registrationNumber: Yup.string().required('Registration number is required'),
     legalStatus: Yup.string()
+      .oneOf(['ngo', 'nonprofit', 'charity', 'foundation'], 'Please select a valid legal status')
       .required('Legal status is required'),
-    areaOfOperation: Yup.string()
-      .required('Area of operation is required')
+    location: Yup.string().required('Location is required'),
+    AreaOfOperation: Yup.string().required('Area of operation is required'),
+    urgencyLevel: Yup.string()
+      .oneOf(['low', 'medium', 'high', 'critical'], 'Please select a valid urgency level')
+      .required('Urgency level is required')
   });
 
   const stepTwoValidation = Yup.object().shape({
     servicesOffered: Yup.string()
-      .required('Services offered is required'),
-    numberOfStaff: Yup.string()
-      .required('Number of staff/volunteers is required'),
-    cryptoWallet: Yup.string()
-      .required('Crypto wallet address is required')
-      .matches(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum wallet address')
+      .required('Services offered is required')
+      .min(10, 'Please provide more detail about your services'),
+    
+    NumberOfVolunteers: Yup.number()
+      .required('Number of volunteers is required')
+      .min(1, 'Must have at least 1 volunteer')
+      .typeError('Must be a number'),
+    
+    cryptoWallet: Yup.object().shape({
+      address: Yup.string()
+        .required('Wallet address is required')
+        .matches(
+          /^0x[a-fA-F0-9]{40}$/,
+          'Must be a valid Ethereum wallet address'
+        )
+    }),
+    
+    monthlyNeed: Yup.number()
+      .required('Monthly need amount is required')
+      .min(1, 'Amount must be greater than 0')
+      .typeError('Must be a number')
   });
 
   const stepThreeValidation = Yup.object().shape({
-    pastWorkReports: Yup.mixed().required('Past work reports are required'),
-    registrationDocument: Yup.mixed().required('Registration document is required'),
-    additionalDocuments: Yup.mixed().required('Additional documents are required')
+    registrationDocuments: Yup.mixed().required('Registration document is required'),
+    PastWorkReport: Yup.mixed().required('Past work reports are required'),
+    verificationDocuments: Yup.mixed().required('Verification documents are required')
   });
 
   // Add edit mode state
@@ -74,15 +117,31 @@ const InitiativeApplicationPage = () => {
     setTouched(prev => ({ ...prev, [name]: true }));
   };
 
+  // Update the handleOrganizationInfoChange function to handle nested objects
   const handleOrganizationInfoChange = (e) => {
     const { name, value } = e.target;
-    setOrganizationInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Handle nested objects (cryptoWallet)
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setOrganizationInfo(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      // Handle regular fields
+      setOrganizationInfo(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
     setTouched(prev => ({ ...prev, [name]: true }));
   };
 
+  // Update file upload handler
   const handleFileUpload = (fieldName, file) => {
     setDocuments(prev => ({
       ...prev,
@@ -100,11 +159,25 @@ const InitiativeApplicationPage = () => {
       switch (currentStep) {
         case 1:
           currentValidation = stepOneValidation;
-          currentData = basicInfo;
+          currentData = {
+            fullName: basicInfo.fullName,
+            contactNumber: basicInfo.contactNumber,
+            contactEmail: basicInfo.contactEmail,
+            registrationNumber: basicInfo.registrationNumber,
+            legalStatus: basicInfo.legalStatus,
+            location: basicInfo.location,
+            AreaOfOperation: basicInfo.AreaOfOperation,
+            urgencyLevel: basicInfo.urgencyLevel
+          };
           break;
         case 2:
           currentValidation = stepTwoValidation;
-          currentData = organizationInfo;
+          currentData = {
+            ...organizationInfo,
+            cryptoWallet: {
+              ...organizationInfo.cryptoWallet
+            }
+          };
           break;
         case 3:
           currentValidation = stepThreeValidation;
@@ -119,10 +192,11 @@ const InitiativeApplicationPage = () => {
       return true;
     } catch (validationErrors) {
       const newErrors = {};
-      validationErrors.inner.forEach(error => {  
+      validationErrors.inner.forEach(error => {
         newErrors[error.path] = error.message;
       });
       setErrors(newErrors);
+      // toast.error('Please fill in all required fields');
       return false;
     }
   };
@@ -153,48 +227,111 @@ const InitiativeApplicationPage = () => {
   // Modify handleSubmit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate all steps before final submission
-    let isValid = true;
-    for (let step = 1; step <= 3; step++) {
-      let currentData;
-      let currentValidation;
-      
-      switch (step) {
-        case 1:
-          currentData = basicInfo;
-          currentValidation = stepOneValidation;
-          break;
-        case 2:
-          currentData = organizationInfo;
-          currentValidation = stepTwoValidation;
-          break;
-        case 3:
-          currentData = documents;
-          currentValidation = stepThreeValidation;
-          break;
-      }
-      
-      try {
-        await currentValidation.validate(currentData, { abortEarly: false });
-      } catch (error) {
-        isValid = false;
-        toast.error(`Please check step ${step} for errors`);
-        break;
-      }
-    }
+    setLoading(true);
 
-    if (isValid) {
-      const formData = {
-        ...basicInfo,
-        ...organizationInfo,
-        documents
-      };
-      console.log('Form submitted:', formData);
-      setIsSubmitted(true);
-      toast.success('Application submitted successfully!');
+    try {
+      // Create FormData object
+      const formData = new FormData();
+
+      // Add basic info
+      Object.keys(basicInfo).forEach(key => {
+        formData.append(key, basicInfo[key]);
+      });
+
+      // Add organization info
+      formData.append('servicesOffered', organizationInfo.servicesOffered);
+      formData.append('NumberOfVolunteers', organizationInfo.NumberOfVolunteers);
+      formData.append('cryptoWallet.address', organizationInfo.cryptoWallet.address);
+      formData.append('cryptoWallet.network', organizationInfo.cryptoWallet.network);
+      formData.append('cryptoWallet.currency', organizationInfo.cryptoWallet.currency);
+      formData.append('monthlyNeed', organizationInfo.monthlyNeed);
+
+      // Add files
+      if (documents.registrationDocuments) {
+        formData.append('registrationDocuments', documents.registrationDocuments);
+      }
+      if (documents.PastWorkReport) {
+        formData.append('PastWorkReport', documents.PastWorkReport);
+      }
+      if (documents.verificationDocuments) {
+        formData.append('verificationDocuments', documents.verificationDocuments);
+      }
+
+      // Make API request
+      const response = await axios.post(
+        'http://localhost:5000/api/v1/initiatives',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setIsSubmitted(true);
+        toast.success('Initiative application submitted successfully!');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      
+      // Handle specific error for existing initiative
+      if (error.response?.data?.error === "User already has an initiative profile") {
+        toast.error('You already have an active initiative application. Only one initiative per user is allowed.');
+        // Optional: Redirect to initiative management page
+        // navigate('/initiatives/manage');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to submit application');
+      }
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Add this helper function at the top of your component
+  const formatValue = (key, value) => {
+    if (!value) return 'Not provided';
+    
+    if (typeof value === 'object' && !value.name) {
+      if (key === 'cryptoWallet') {
+        return value.address;
+      }
+      return JSON.stringify(value);
+    }
+    
+    if (value instanceof File) {
+      return value.name;
+    }
+    
+    return value;
+  };
+
+  // Add this check at the beginning of your component
+  useEffect(() => {
+    const checkExistingInitiative = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:5000/api/v1/initiatives/user',
+          {
+            headers: {
+              Authorization: `Bearer ${auth.token}`
+            }
+          }
+        );
+
+        if (response.data.success && response.data.data) {
+          toast.error('You already have an active initiative application.');
+          // Optional: Redirect to initiative management page
+          // navigate('/initiatives/manage');
+        }
+      } catch (error) {
+        console.error('Error checking existing initiative:', error);
+      }
+    };
+
+    checkExistingInitiative();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
@@ -272,8 +409,9 @@ const InitiativeApplicationPage = () => {
                         className={`w-full px-4 py-2 border rounded-lg ${
                           errors.registrationNumber ? 'border-red-500' : 'border-gray-300'
                         }`}
+                        placeholder="Enter registration number"
                       />
-                      {errors.registrationNumber && touched.registrationNumber && (
+                      {errors.registrationNumber && (
                         <div className="text-red-500 text-sm mt-1">{errors.registrationNumber}</div>
                       )}
                     </div>
@@ -291,12 +429,12 @@ const InitiativeApplicationPage = () => {
                         }`}
                       >
                         <option value="">Select Legal Status</option>
-                        <option value="registered_ngo">Registered NGO</option>
-                        <option value="charity">Registered Charity</option>
-                        <option value="foundation">Foundation</option>
+                        <option value="ngo">NGO</option>
+                        <option value="organization">Organization</option>
+                        <option value="individual">Individual</option>
                         <option value="other">Other</option>
                       </select>
-                      {errors.legalStatus && touched.legalStatus && (
+                      {errors.legalStatus && (
                         <div className="text-red-500 text-sm mt-1">{errors.legalStatus}</div>
                       )}
                     </div>
@@ -306,17 +444,117 @@ const InitiativeApplicationPage = () => {
                         Area of Operation
                       </label>
                       <textarea
-                        name="areaOfOperation"
-                        value={basicInfo.areaOfOperation}
+                        name="AreaOfOperation"
+                        value={basicInfo.AreaOfOperation}
                         onChange={handleBasicInfoChange}
                         className={`w-full px-4 py-2 border rounded-lg ${
-                          errors.areaOfOperation ? 'border-red-500' : 'border-gray-300'
+                          errors.AreaOfOperation ? 'border-red-500' : 'border-gray-300'
                         }`}
                         rows="3"
                         placeholder="Describe your geographical area of operation"
                       />
-                      {errors.areaOfOperation && touched.areaOfOperation && (
-                        <div className="text-red-500 text-sm mt-1">{errors.areaOfOperation}</div>
+                      {errors.AreaOfOperation && (
+                        <div className="text-red-500 text-sm mt-1">{errors.AreaOfOperation}</div>
+                      )}
+                    </div>
+
+   <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Urgency Level
+                      </label>
+                      <select
+                        name="urgencyLevel"
+                        value={basicInfo.urgencyLevel}
+                        onChange={handleBasicInfoChange}
+                        className={`w-full px-4 py-2 border rounded-lg ${
+                         errors.urgencyLevel ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select Urgency Level</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                      </select>
+                      {errors.urgencyLevel && (
+                        <div className="text-red-500 text-sm mt-1">{errors.urgencyLevel }</div>
+                      )}
+                    </div>
+
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        value={basicInfo.fullName}
+                        onChange={handleBasicInfoChange}
+                        className={`w-full px-4 py-2 border rounded-lg ${
+                          errors.fullName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter your full name"
+                      />
+                      {errors.fullName && (
+                        <div className="text-red-500 text-sm mt-1">{errors.fullName}</div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Contact Number
+                      </label>
+                      <input
+                        type="tel"
+                        name="contactNumber"
+                        value={basicInfo.contactNumber}
+                        onChange={handleBasicInfoChange}
+                        className={`w-full px-4 py-2 border rounded-lg ${
+                          errors.contactNumber ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="+123456789"
+                      />
+                      {errors.contactNumber && (
+                        <div className="text-red-500 text-sm mt-1">{errors.contactNumber}</div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Contact Email
+                      </label>
+                      <input
+                        type="email"
+                        name="contactEmail"
+                        value={basicInfo.contactEmail}
+                        onChange={handleBasicInfoChange}
+                        className={`w-full px-4 py-2 border rounded-lg ${
+                          errors.contactEmail ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="email@example.com"
+                      />
+                      {errors.contactEmail && (
+                        <div className="text-red-500 text-sm mt-1">{errors.contactEmail}</div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        name="location"
+                        value={basicInfo.location}
+                        onChange={handleBasicInfoChange}
+                        className={`w-full px-4 py-2 border rounded-lg ${
+                          errors.location ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter your location"
+                      />
+                      {errors.location && (
+                        <div className="text-red-500 text-sm mt-1">{errors.location}</div>
                       )}
                     </div>
                   </div>
@@ -343,9 +581,9 @@ const InitiativeApplicationPage = () => {
                           errors.servicesOffered ? 'border-red-500' : 'border-gray-300'
                         }`}
                         rows="3"
-                        placeholder="Describe the services your organization offers"
+                        placeholder="e.g., Food distribution, medical aid, shelter assistance..."
                       />
-                      {errors.servicesOffered && touched.servicesOffered && (
+                      {errors.servicesOffered && (
                         <div className="text-red-500 text-sm mt-1">{errors.servicesOffered}</div>
                       )}
                     </div>
@@ -356,35 +594,61 @@ const InitiativeApplicationPage = () => {
                       </label>
                       <input
                         type="number"
-                        name="numberOfStaff"
-                        value={organizationInfo.numberOfStaff}
+                        name="NumberOfVolunteers"
+                        value={organizationInfo.NumberOfVolunteers}
                         onChange={handleOrganizationInfoChange}
                         className={`w-full px-4 py-2 border rounded-lg ${
-                          errors.numberOfStaff ? 'border-red-500' : 'border-gray-300'
+                          errors.NumberOfVolunteers ? 'border-red-500' : 'border-gray-300'
                         }`}
                         min="1"
+                        placeholder="Enter number of volunteers"
                       />
-                      {errors.numberOfStaff && touched.numberOfStaff && (
-                        <div className="text-red-500 text-sm mt-1">{errors.numberOfStaff}</div>
+                      {errors.NumberOfVolunteers && (
+                        <div className="text-red-500 text-sm mt-1">{errors.NumberOfVolunteers}</div>
                       )}
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Crypto Wallet Address
+                        Crypto Wallet Address (ERC20)
                       </label>
                       <input
                         type="text"
-                        name="cryptoWallet"
-                        value={organizationInfo.cryptoWallet}
+                        name="cryptoWallet.address"
+                        value={organizationInfo.cryptoWallet.address}
                         onChange={handleOrganizationInfoChange}
                         className={`w-full px-4 py-2 border rounded-lg ${
-                          errors.cryptoWallet ? 'border-red-500' : 'border-gray-300'
+                          errors['cryptoWallet.address'] ? 'border-red-500' : 'border-gray-300'
                         }`}
                         placeholder="0x..."
                       />
-                      {errors.cryptoWallet && touched.cryptoWallet && (
-                        <div className="text-red-500 text-sm mt-1">{errors.cryptoWallet}</div>
+                      {errors['cryptoWallet.address'] && (
+                        <div className="text-red-500 text-sm mt-1">
+                          {errors['cryptoWallet.address']}
+                        </div>
+                      )}
+                      <p className="mt-1 text-sm text-gray-500">
+                        Enter a valid Ethereum wallet address starting with 0x
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Monthly Need (USDT)
+                      </label>
+                      <input
+                        type="number"
+                        name="monthlyNeed"
+                        value={organizationInfo.monthlyNeed}
+                        onChange={handleOrganizationInfoChange}
+                        className={`w-full px-4 py-2 border rounded-lg ${
+                          errors.monthlyNeed ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        min="1"
+                        placeholder="Enter amount in USDT"
+                      />
+                      {errors.monthlyNeed && (
+                        <div className="text-red-500 text-sm mt-1">{errors.monthlyNeed}</div>
                       )}
                     </div>
                   </div>
@@ -402,7 +666,7 @@ const InitiativeApplicationPage = () => {
                     {Object.keys(documents).map((field) => (
                       <div key={field}>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {field.charAt(0).toUpperCase() + field.slice(1)} Document
+                          {field.charAt(0).toUpperCase() + field.slice(1)} 
                         </label>
                         <div 
                           className={`border-2 border-dashed rounded-lg p-4 ${
@@ -449,17 +713,20 @@ const InitiativeApplicationPage = () => {
                   {/* Basic Information Review */}
                   <div className="bg-gray-50 p-4 rounded-lg relative">
                     <button
+                      type="button"
                       onClick={() => handleEdit(1)}
                       className="absolute top-2 right-2 text-blue-600 hover:text-blue-800"
                     >
                       Edit
                     </button>
                     <h4 className="font-medium text-gray-900 mb-2">Basic Information</h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(basicInfo).map(([key, value]) => (
-                        <div key={key}>
-                          <p className="text-sm text-gray-600">{key}</p>
-                          <p className="font-medium">{value}</p>
+                        <div key={key} className="border-b border-gray-200 pb-2">
+                          <p className="text-sm text-gray-600 capitalize">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </p>
+                          <p className="font-medium">{formatValue(key, value)}</p>
                         </div>
                       ))}
                     </div>
@@ -468,17 +735,24 @@ const InitiativeApplicationPage = () => {
                   {/* Organization Information Review */}
                   <div className="bg-gray-50 p-4 rounded-lg relative">
                     <button
+                      type="button"
                       onClick={() => handleEdit(2)}
                       className="absolute top-2 right-2 text-blue-600 hover:text-blue-800"
                     >
                       Edit
                     </button>
                     <h4 className="font-medium text-gray-900 mb-2">Organization Details</h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(organizationInfo).map(([key, value]) => (
-                        <div key={key}>
-                          <p className="text-sm text-gray-600">{key}</p>
-                          <p className="font-medium">{value}</p>
+                        <div key={key} className="border-b border-gray-200 pb-2">
+                          <p className="text-sm text-gray-600 capitalize">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </p>
+                          {key === 'cryptoWallet' ? (
+                            <p className="font-medium">{value.address}</p>
+                          ) : (
+                            <p className="font-medium">{formatValue(key, value)}</p>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -487,17 +761,36 @@ const InitiativeApplicationPage = () => {
                   {/* Documents Review */}
                   <div className="bg-gray-50 p-4 rounded-lg relative">
                     <button
+                      type="button"
                       onClick={() => handleEdit(3)}
                       className="absolute top-2 right-2 text-blue-600 hover:text-blue-800"
                     >
                       Edit
                     </button>
                     <h4 className="font-medium text-gray-900 mb-2">Uploaded Documents</h4>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {Object.entries(documents).map(([key, file]) => (
-                        <div key={key} className="flex items-center">
-                          <FaCheck className="text-green-500 mr-2" />
-                          <p className="text-sm">{file?.name || 'No file uploaded'}</p>
+                        <div key={key} className="flex items-center justify-between border-b border-gray-200 pb-2">
+                          <div className="flex items-center">
+                            {file ? (
+                              <FaCheck className="text-green-500 mr-2" />
+                            ) : (
+                              <FaTimes className="text-red-500 mr-2" />
+                            )}
+                            <div>
+                              <p className="text-sm text-gray-600 capitalize">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}
+                              </p>
+                              <p className="font-medium">
+                                {file ? file.name : 'No file uploaded'}
+                              </p>
+                            </div>
+                          </div>
+                          {file && (
+                            <span className="text-xs text-gray-500">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </span>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -541,9 +834,21 @@ const InitiativeApplicationPage = () => {
                 ) : (
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                    disabled={loading}
+                    className={`px-6 py-2 bg-green-500 text-white rounded-lg 
+                      ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-green-600'}`}
                   >
-                    Submit Application
+                    {loading ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Submitting...
+                      </span>
+                    ) : (
+                      'Submit Application'
+                    )}
                   </button>
                 )}
               </div>

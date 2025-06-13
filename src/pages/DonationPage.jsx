@@ -5,12 +5,13 @@ import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 import { MdWallet } from "react-icons/md";
 import axios from 'axios';
-
 import { useNavigate } from 'react-router-dom';
 import { useAccount, useBalance, useDisconnect } from 'wagmi';
 import { useAppKit } from '@reown/appkit/react';
+import { useAuth } from '../contexts/AuthContext';
 
 const DonationPage = () => {
+  const { auth } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     donationType: '',
@@ -18,8 +19,8 @@ const DonationPage = () => {
     amount: 50,
     customAmount: '',
     paymentMethod: 'card',
-    donorName: '',
-    email: '',
+    donorName: auth.user?.name || '',  // Initialize with user's name
+    email: auth.user?.email || '',     // Initialize with user's email
     phone: '',
     address: '',
     message: '',
@@ -404,9 +405,8 @@ const DonationPage = () => {
                     type="text"
                     name="donorName"
                     value={formData.donorName}
-                    onChange={handleInputChange}
-                    className="w-full p-2 md:p-3 border rounded-lg text-base md:text-lg"
-                    placeholder="Enter your name"
+                    readOnly
+                    className="w-full p-2 md:p-3 border rounded-lg text-base md:text-lg bg-gray-50 cursor-not-allowed"
                   />
                 </div>
                 <div>
@@ -417,9 +417,8 @@ const DonationPage = () => {
                     type="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full p-2 md:p-3 border rounded-lg text-base md:text-lg"
-                    placeholder="Enter your email"
+                    readOnly
+                    className="w-full p-2 md:p-3 border rounded-lg text-base md:text-lg bg-gray-50 cursor-not-allowed"
                   />
                 </div>
               </div>

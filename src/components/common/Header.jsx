@@ -1,12 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react'; // Add useRef and useEffect
 import { Link, useNavigate } from 'react-router-dom'; // Add useNavigate
 import Button from '../common/Button';
 import { useAuth } from '../../contexts/AuthContext';
+import UserProfile from '../common/UserProfile';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { auth, logout } = useAuth(); // Add logout from useAuth
   const navigate = useNavigate(); // Add navigation hook
+  const menuRef = useRef(null); // Add ref for the menu
+  const buttonRef = useRef(null); // Add ref for the hamburger button
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMenuOpen && 
+          menuRef.current && 
+          !menuRef.current.contains(event.target) &&
+          !buttonRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const handleLogout = () => {
     logout(); // Call logout from auth context
@@ -80,24 +103,14 @@ const Header = () => {
               </>
             ) : (
               <>
-                <Link to="/dashboard">
-                  <Button variant="outline">Dashboard</Button>
-                </Link>
                 {auth.role === 'donor' && (
                   <Link to="/donate">
-                    <Button variant="outline" className="cursor-pointer">
+                    <Button variant="violet" className="cursor-pointer">
                       Donate Now
                     </Button>
                   </Link>
                 )}
-                {/* Add desktop logout button */}
-                <Button 
-                  variant="outline" 
-                  onClick={handleLogout}
-                  className="text-red-600 hover:bg-red-50"
-                >
-                  Logout
-                </Button>
+                <UserProfile user={auth.user} onLogout={handleLogout} />
               </>
             )}
           </div>
@@ -105,6 +118,7 @@ const Header = () => {
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button
+              ref={buttonRef}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700"
             >
@@ -132,7 +146,25 @@ const Header = () => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden">
+        <div 
+          ref={menuRef}
+          className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg z-50"
+        >
+          {auth.isAuthenticated && (
+            <div className="px-4 py-3 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                  <span className="text-primary-600 font-medium">
+                    {auth.user?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{auth.user?.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{auth.user?.email}</p>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => (
               <Link

@@ -10,6 +10,7 @@ const BeneficiaryRegister = () => {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
+    name: '', // Add name field
     email: '',
     password: '',
     confirmPassword: '',
@@ -20,6 +21,10 @@ const BeneficiaryRegister = () => {
   const [errors, setErrors] = useState({});
 
   const validationSchema = Yup.object().shape({
+    name: Yup.string()
+      .required('Name is required')
+      .min(2, 'Name must be at least 2 characters')
+      .max(50, 'Name is too long'),
     email: Yup.string()
       .email('Please enter a valid email address')
       .required('Email is required')
@@ -58,6 +63,7 @@ const BeneficiaryRegister = () => {
       await validationSchema.validate(formData, { abortEarly: false });
 
       const apiData = {
+        name: formData.name, // Add name to API data
         email: formData.email,
         password: formData.password,
         role: formData.role
@@ -103,6 +109,39 @@ className="max-w-7xl mx-auto py-8 px-4"    >
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaUser className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`appearance-none block w-full pl-10 px-3 py-2 border ${
+                    errors.name ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                  placeholder="Enter your full name"
+                />
+                {errors.name && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-2 text-sm text-red-600"
+                  >
+                    {errors.name}
+                  </motion.p>
+                )}
+              </div>
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address

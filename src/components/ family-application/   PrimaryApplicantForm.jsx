@@ -47,7 +47,11 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                     onChange={(e) => formik.setFieldValue('basicInfo.idDocument', e.target.files[0])}
                     className="w-full text-sm"
                     accept=".pdf,.jpg,.jpeg,.png"
+                   
                   />
+                  {formik.touched.basicInfo?.idDocument && formik.errors.basicInfo?.idDocument && (
+                    <div className="text-red-500 text-xs mt-1">{formik.errors.basicInfo.idDocument}</div>
+                  )}
                   <p className="text-xs text-gray-500 mt-1">
                     Accepted formats: PDF, JPG, PNG (Max size: 5MB)
                   </p>
@@ -58,11 +62,15 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Medical Needs
                 </label>
+
                 <textarea
                   {...formik.getFieldProps('basicInfo.medicalNeeds')}
                   className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500 min-h-[80px]"
                   placeholder="Describe any medical conditions or needs"
                 />
+                {formik.touched.basicInfo?.medicalNeeds && formik.errors.basicInfo?.medicalNeeds && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.basicInfo.medicalNeeds}</div>
+                )}
               </div>
             </div>
           </div>
@@ -83,6 +91,9 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                   className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500"
                   placeholder="Enter your location"
                 />
+                {formik.touched.housingInfo?.location && formik.errors.housingInfo?.location && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.housingInfo.location}</div>
+                )}
               </div>
 
               <div className="w-full">
@@ -100,6 +111,9 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                   <option value="homeless">Currently Homeless</option>
                   <option value="shelter">Living in Shelter</option>
                 </select>
+                {formik.touched.housingInfo?.housingCondition && formik.errors.housingInfo?.housingCondition && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.housingInfo.housingCondition}</div>
+                )}
               </div>
 
               <div className="w-full">
@@ -114,6 +128,25 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                   min="0"
                   step="0.01"
                 />
+                {formik.touched.housingInfo?.monthlyIncome && formik.errors.housingInfo?.monthlyIncome && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.housingInfo.monthlyIncome}</div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Monthly Need *
+                </label>
+                <input
+                  type="number"
+                  {...formik.getFieldProps('housingInfo.monthlyNeed')}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500"
+                  placeholder="Enter monthly need amount"
+                  min="0"
+                />
+                {formik.touched.housingInfo?.monthlyNeed && formik.errors.housingInfo?.monthlyNeed && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.housingInfo.monthlyNeed}</div>
+                )}
               </div>
 
               <div className="w-full">
@@ -129,6 +162,9 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                   />
                   <FaWallet className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
+                {formik.touched.cryptoWallet && formik.errors.cryptoWallet && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.cryptoWallet}</div>
+                )}
               </div>
             </div>
           </div>
@@ -149,6 +185,9 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                   className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500"
                   placeholder="Enter your contact number"
                 />
+                {formik.touched.basicInfo?.contactNumber && formik.errors.basicInfo?.contactNumber && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.basicInfo.contactNumber}</div>
+                )}
               </div>
 
               <div className="w-full">
@@ -161,6 +200,9 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                   className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500"
                   placeholder="Enter your email"
                 />
+                {formik.touched.basicInfo?.email && formik.errors.basicInfo?.email && (
+                  <div className="text-red-500 text-xs mt-1">{formik.errors.basicInfo.email}</div>
+                )}
               </div>
 
               {/* Social Media Links Section */}
@@ -195,6 +237,7 @@ const PrimaryApplicantForm = ({ formik, socialMediaLinks, onSocialMediaChange, o
                           placeholder="Enter URL"
                         />
                       </div>
+                      
                     </div>
                     
                     <button

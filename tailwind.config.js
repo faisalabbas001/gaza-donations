@@ -1,4 +1,10 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  
   theme: {
     extend: {
       colors: {
@@ -15,7 +21,13 @@ module.exports = {
           900: '#0c4a6e',
         },
       },
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
+      },
+      boxShadow: {
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      },
     },
   },
-  // ... rest of your config
-};
+  plugins: [],
+}

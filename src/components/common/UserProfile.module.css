@@ -1,0 +1,72 @@
+.profileDropdown {
+  position: absolute;
+  right: 0;
+  animation: dropdownFade 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform-origin: top right;
+}
+
+@media (max-width: 640px) {
+  .profileDropdown {
+    right: -1rem;
+    width: calc(100vw - 2rem) !important;
+    margin-top: 0.5rem;
+  }
+}
+
+.avatarGlow {
+  position: relative;
+}
+
+.avatarGlow::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--primary-500), var(--primary-600));
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(4px);
+}
+
+/* Hover effects */
+.profileDropdown a:hover svg,
+.profileDropdown button:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+/* Role badge styles */
+.roleBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.beneficiaryBadge {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: rgb(30, 64, 175);
+}
+
+.donorBadge {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: rgb(6, 95, 70);
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

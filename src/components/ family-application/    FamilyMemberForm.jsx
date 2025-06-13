@@ -1,7 +1,6 @@
 import React from 'react';
-
 import { motion } from 'framer-motion';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaExclamationCircle } from 'react-icons/fa';
 
 const FieldError = ({ error }) => (
   error ? (
@@ -12,6 +11,28 @@ const FieldError = ({ error }) => (
       </span>
     </div>
   ) : null
+);
+
+const InputField = ({ label, error, required, ...props }) => (
+  <div className="w-full">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <input
+      {...props}
+      className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500 ${
+        error ? 'border-red-500 bg-red-50' : ''
+      }`}
+    />
+    {error && (
+      <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+        {error}
+      </div>
+    )}
+  </div>
 );
 
 const FamilyMemberForm = ({ 
@@ -45,51 +66,36 @@ const FamilyMemberForm = ({
             </h3>
             
             <div className="grid grid-cols-1 gap-4">
-              {/* Full Name Field */}
-              <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  value={member.fullName}
-                  onChange={(e) => onChange(index, 'fullName', e.target.value)}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter family member's name"
-                />
-                <FieldError error={fieldErrors[`member${index}_fullName`]} />
-              </div>
+              <InputField
+                label="Full Name"
+                required
+                type="text"
+                value={member.fullName}
+                onChange={(e) => onChange(index, 'fullName', e.target.value)}
+                placeholder="Enter family member's name"
+                error={fieldErrors[`member${index}_fullName`]}
+              />
 
-              {/* Age Field */}
-              <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Age *
-                </label>
-                <input
-                  type="number"
-                  value={member.age}
-                  onChange={(e) => onChange(index, 'age', e.target.value)}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter age"
-                  min="0"
-                />
-                <FieldError error={fieldErrors[`member${index}_age`]} />
-              </div>
+              <InputField
+                label="Age"
+                required
+                type="number"
+                value={member.age}
+                onChange={(e) => onChange(index, 'age', e.target.value)}
+                placeholder="Enter age"
+                min="0"
+                error={fieldErrors[`member${index}_age`]}
+              />
 
-              {/* Relationship Field */}
-              <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Relationship *
-                </label>
-                <input
-                  type="text"
-                  value={member.relationship}
-                  onChange={(e) => onChange(index, 'relationship', e.target.value)}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter relationship"
-                />
-                <FieldError error={fieldErrors[`member${index}_relationship`]} />
-              </div>
+              <InputField
+                label="Relationship"
+                required
+                type="text"
+                value={member.relationship}
+                onChange={(e) => onChange(index, 'relationship', e.target.value)}
+                placeholder="Enter relationship"
+                error={fieldErrors[`member${index}_relationship`]}
+              />
 
               {/* Medical Needs Field */}
               <div className="w-full">
@@ -119,7 +125,20 @@ const FamilyMemberForm = ({
                   <span className="text-sm text-gray-700">Yes</span>
                 </div>
               </div>
-
+ <div className="w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Is Disabled
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={member.isDisabled}
+                    onChange={(e) => onChange(index, 'isDisabled', e.target.checked)}
+                    className="text-green-500"
+                  />
+                  <span className="text-sm text-gray-700">Yes</span>
+                </div>
+              </div>
               {/* ID Document Field */}
               <div className="w-full">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
