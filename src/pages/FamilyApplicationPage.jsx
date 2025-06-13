@@ -100,13 +100,13 @@ const FamilyApplicationPage = () => {
   const [socialMediaLinks, setSocialMediaLinks] = useState([]);
 
   // Check authentication on mount
-  useEffect(() => {
-    if (!auth.user?.id) {
-      toast.error('Please login to submit an application');
-      // Optionally redirect to login page
-      // navigate('/login');
-    }
-  }, [auth]);
+  // useEffect(() => {
+  //   if (!auth.user?.id) {
+  //     toast.error('Please login to submit an application');
+  //     // Optionally redirect to login page
+  //     // navigate('/login');
+  //   }
+  // }, [auth]);
 
   // Add this useEffect at the top of your component
 useEffect(() => {
@@ -133,10 +133,10 @@ useEffect(() => {
   const handleFormSubmit = async (values) => {
     setIsSubmitting(true);
     try {
-      if (!auth?.user?.id) {
-        toast.error('User not authenticated');
-        return;
-      }
+      // if (!auth?.user?.id) {
+      //   toast.error('User not authenticated');
+      //   return;
+      // }
 
       const formData = new FormData();
 
