@@ -103,13 +103,13 @@ const Header = () => {
               </>
             ) : (
               <>
-                {auth.role === 'donor' && (
+                {/* {auth.role === 'donor' && (
                   <Link to="/donate">
                     <Button variant="violet" className="cursor-pointer">
                       Donate Now
                     </Button>
                   </Link>
-                )}
+                )} */}
                 <UserProfile user={auth.user} onLogout={handleLogout} />
               </>
             )}

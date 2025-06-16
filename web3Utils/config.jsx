@@ -2,7 +2,7 @@
 import { createAppKit } from '@reown/appkit/react';
 
 import { WagmiProvider } from 'wagmi';
-import { arbitrum, fantomTestnet, hardhat } from '@reown/appkit/networks';
+import { arbitrum, baseSepolia, fantomTestnet, hardhat } from '@reown/appkit/networks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
@@ -23,7 +23,7 @@ const metadata = {
 };
 
 // 3. Set the networks
-const networks = [fantomTestnet, hardhat];
+const networks = [baseSepolia, hardhat];
 
 // 4. Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({

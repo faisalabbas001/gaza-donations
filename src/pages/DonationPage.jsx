@@ -9,16 +9,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAccount, useBalance, useDisconnect } from 'wagmi';
 import { useAppKit } from '@reown/appkit/react';
 import { useAuth } from '../contexts/AuthContext';
-
+import { useContract } from '../../web3Utils/blockchainContext';
 const DonationPage = () => {
   const { auth } = useAuth();
+  const {donate} = useContract();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     donationType: '',
     category: '',
     amount: 50,
     customAmount: '',
-    paymentMethod: 'card',
+    paymentMethod: 'metamask',
     donorName: auth.user?.name || '',  // Initialize with user's name
     email: auth.user?.email || '',     // Initialize with user's email
     phone: '',
@@ -89,6 +90,7 @@ const DonationPage = () => {
       return;
     }
 
+     
     // Validate form
     if (!validateForm()) {
       // Show all validation errors
@@ -112,14 +114,20 @@ const DonationPage = () => {
         return;
       }
 
-      // Generate transaction hash
-      const dummyTransactionHash = '0x' + Math.random().toString(16).slice(2) + Date.now().toString(16);
+  
+      const {tx, success, error} = await donate(
+        formData.customAmount || formData.amount)
+      
+        console.log('tx', tx);
+      if (!success) {
+        throw new Error(error || 'Failed to process donation');
+      }
 
       // Prepare donation data with required fields
       const donationData = {
         amount: Number(formData.customAmount || formData.amount),
         anonymous: formData.isAnonymous,
-        transactionHash: dummyTransactionHash,
+        transactionHash: tx,
         donorWalletAddress: address // Using actual connected wallet address
       };
 
@@ -431,9 +439,13 @@ const DonationPage = () => {
                 {predefinedAmounts.map((presetAmount) => (
                   <button
                     key={presetAmount}
-                    onClick={() => setFormData(prev => ({ ...prev, amount: presetAmount, customAmount: '' }))}
+                    onClick={() => setFormData(prev => ({ 
+                      ...prev, 
+                      amount: presetAmount,
+                      customAmount: presetAmount.toString() // Convert to string for input value
+                    }))}
                     className={`
-                      py-4 rounded-lg  text-center transition-all transform hover:scale-105
+                      py-4 rounded-lg text-center transition-all transform hover:scale-105
                       ${formData.amount === presetAmount
                         ? 'bg-primary-600 text-black'
                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -451,8 +463,16 @@ const DonationPage = () => {
                 <input
                   type="number"
                   name="customAmount"
+                 
                   value={formData.customAmount}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData(prev => ({
+                      ...prev,
+                      customAmount: value,
+                      amount: value ? Number(value) : 0 // Update amount when custom amount changes
+                    }));
+                  }}
                   className={`w-full p-3 border rounded-lg ${
                     formErrors.amount ? 'border-red-500' : ''
                   }`}
@@ -465,7 +485,7 @@ const DonationPage = () => {
             </div>
 
             {/* Recurring Donation */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <div className="flex items-center mb-4">
                 <input
                   type="checkbox"
@@ -490,7 +510,7 @@ const DonationPage = () => {
                   ))}
                 </select>
               )}
-            </div>
+            </div> */}
 
             {/* Payment Method */}
             {renderPaymentMethods()}

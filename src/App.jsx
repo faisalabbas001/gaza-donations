@@ -1,13 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import PublicLayout from './components/layouts/PublicLayout';
-import AdminLayout from './components/layouts/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import Categories from './pages/admin/Categories';
-import Donations from './pages/admin/Donations';
-import Families from './pages/admin/Families';
-import Initiatives from './pages/admin/Initiatives';
-import Reports from './pages/admin/Reports';
+
 
 import InitiativesUser from './pages/InitiativesUser';
 
@@ -32,6 +26,7 @@ import DonationLogin from './pages/DonorLogin'; // Add this import
 import BeneficiaryLogin from './pages/BeneficiaryLogin'; // Add this import
 import { AuthProvider } from './contexts/AuthContext';
 import { DonorRoute, BeneficiaryRoute } from './components/layouts/ProtectedRoutes';
+import NotFoundPage from './pages/NotFoundPage';
 // Remove default create-react-app imports
 // import logo from './logo.svg';
 // import './App.css';
@@ -97,15 +92,8 @@ function App() {
                 <Route path="/impact" element={<ImpactFeedPage />} />
               </Route>
 
-              {/* Admin routes remain unchanged */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="families" element={<Families />} />
-                <Route path="initiatives" element={<Initiatives />} />
-                <Route path="donations" element={<Donations />} />
-                <Route path="categories" element={<Categories />} />
-                <Route path="reports" element={<Reports />} />
-              </Route>
+              {/* 404 catch-all route - Must be last */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
         </div>
