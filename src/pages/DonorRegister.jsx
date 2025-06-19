@@ -68,10 +68,13 @@ const DonorRegister = () => {
         role: formData.role
       };
 
-      await axios.post('http://localhost:5000/api/v1/auth/register', apiData);
+      const response = await axios.post('http://localhost:5000/api/v1/auth/register', apiData);
       
-      toast.success('Registration successful!');
-      navigate('/login');
+      // Store email temporarily for verification
+      localStorage.setItem('tempEmail', formData.email);
+      
+      toast.success('Registration successful! Please check your email for verification code.');
+      navigate('/verify-email'); // Redirect to verification page
 
     } catch (error) {
       if (error instanceof Yup.ValidationError) {

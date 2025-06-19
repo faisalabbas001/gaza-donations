@@ -63,7 +63,7 @@ const BeneficiaryRegister = () => {
       await validationSchema.validate(formData, { abortEarly: false });
 
       const apiData = {
-        name: formData.name, // Add name to API data
+        name: formData.name, 
         email: formData.email,
         password: formData.password,
         role: formData.role
@@ -71,8 +71,12 @@ const BeneficiaryRegister = () => {
 
       await axios.post('http://localhost:5000/api/v1/auth/register', apiData);
       
-      toast.success('Registration successful!');
-      navigate('/login');
+     
+       localStorage.setItem('tempEmail', formData.email);
+      
+      toast.success('Registration successful! Please check your email for verification code.');
+      navigate('/verify-email');  
+
 
     } catch (error) {
       if (error instanceof Yup.ValidationError) {

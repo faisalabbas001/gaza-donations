@@ -27,6 +27,7 @@ import BeneficiaryLogin from './pages/BeneficiaryLogin'; // Add this import
 import { AuthProvider } from './contexts/AuthContext';
 import { DonorRoute, BeneficiaryRoute } from './components/layouts/ProtectedRoutes';
 import NotFoundPage from './pages/NotFoundPage';
+import EmailVerification from './pages/EmailVerification';
 // Remove default create-react-app imports
 // import logo from './logo.svg';
 // import './App.css';
@@ -62,6 +63,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/register/donor" element={<DonationRegister />} />
                 <Route path="/register/beneficiary" element={<BeneficiaryRegister />} />
+                <Route path="/verify-email" element={<EmailVerification />} />
 
                 {/* Protected Donor routes */}
                 <Route path="/donate" element={
