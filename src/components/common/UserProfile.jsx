@@ -54,7 +54,7 @@ const UserProfile = ({ user, onLogout }) => {
       </button>
 
       {isDropdownOpen && (
-        <div className={`${styles.profileDropdown} absolute right-[50%] translate-x-[40%] mt-5 w-80 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100`}>
+        <div className={`${styles.profileDropdown} absolute right-0 mt-5 w-72 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100`}>
           <div className="px-4 py-3 border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
