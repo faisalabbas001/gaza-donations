@@ -70,7 +70,7 @@ const DonorRegister = () => {
         role: formData.role
       };
 
-      const response = await axios.post('http://localhost:5000/api/v1/auth/register', apiData);
+      const response = await axios.post('https://gazabackend-production.up.railway.app/api/v1/auth/register', apiData);
       
       // Store email temporarily for verification
       localStorage.setItem('tempEmail', formData.email);

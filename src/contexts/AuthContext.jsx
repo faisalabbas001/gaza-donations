@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const { data } = await axios.get('http://localhost:5000/api/v1/auth/me', {
+      const { data } = await axios.get('https://gazabackend-production.up.railway.app/api/v1/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
 

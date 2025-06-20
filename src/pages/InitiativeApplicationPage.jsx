@@ -259,7 +259,7 @@ const InitiativeApplicationPage = () => {
 
       // Make API request
       const response = await axios.post(
-        'http://localhost:5000/api/v1/initiatives',
+        'https://gazabackend-production.up.railway.app/api/v1/initiatives',
         formData,
         {
           headers: {
@@ -312,7 +312,7 @@ const InitiativeApplicationPage = () => {
     const checkExistingInitiative = async () => {
       try {
         const response = await axios.get(
-          'http://localhost:5000/api/v1/initiatives/user',
+          'https://gazabackend-production.up.railway.app/api/v1/initiatives/user',
           {
             headers: {
               Authorization: `Bearer ${auth.token}`

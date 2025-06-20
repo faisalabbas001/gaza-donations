@@ -138,7 +138,7 @@ const DonationPage = () => {
 
       // Send data to API
       const response = await axios.post(
-        'http://localhost:5000/api/v1/donations', 
+        'https://gazabackend-production.up.railway.app/api/v1/donations', 
         donationData,
         {
           headers: {

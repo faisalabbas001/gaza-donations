@@ -50,7 +50,7 @@ const BeneficiaryLogin = () => {
 
     try {
       await validationSchema.validate(formData, { abortEarly: false });
-      const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
+      const response = await axios.post('https://gazabackend-production.up.railway.app/api/v1/auth/login', {
         ...formData,
         role: 'beneficiary'
       });

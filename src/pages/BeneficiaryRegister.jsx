@@ -71,7 +71,7 @@ const BeneficiaryRegister = () => {
         role: formData.role
       };
 
-      await axios.post('http://localhost:5000/api/v1/auth/register', apiData);
+      await axios.post('https://gazabackend-production.up.railway.app/api/v1/auth/register', apiData);
       
      
        localStorage.setItem('tempEmail', formData.email);
