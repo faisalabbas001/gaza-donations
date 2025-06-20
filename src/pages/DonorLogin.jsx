@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -18,6 +18,7 @@ const DonorLogin = () => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   // Simplified validation schema for login
   const validationSchema = Yup.object().shape({
@@ -57,7 +58,7 @@ const DonorLogin = () => {
       if (response.data?.token) {
         login(response.data.user, 'donor', response.data.token);
         toast.success('Login successful!');
-        navigate('/dashboard');
+        navigate('/');
       }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -138,17 +139,23 @@ className="max-w-7xl mx-auto py-8 px-4"     >
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`appearance-none block w-full pl-10 px-3 py-2 border ${
+                  className={`appearance-none block w-full pl-10 pr-10 px-3 py-2 border ${
                     errors.password ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="••••••••"
                 />
-                {errors.password && (
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-gray-400 hover:text-gray-500 focus:outline-none">
+                    {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+              {errors.password && (
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -157,7 +164,6 @@ className="max-w-7xl mx-auto py-8 px-4"     >
                     {errors.password}
                   </motion.p>
                 )}
-              </div>
             </div>
 
             <div className="flex items-center justify-between">

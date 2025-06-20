@@ -150,7 +150,7 @@ const DonationPage = () => {
 
       if (response.status === 200 || response.status === 201) {
         const receipt = {
-          id: dummyTransactionHash,
+          id: tx,
           date: new Date().toLocaleDateString(),
           amount: donationData.amount
         };

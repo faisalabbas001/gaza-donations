@@ -73,13 +73,27 @@ const EmailVerification = () => {
         
         // Clear session data
         localStorage.removeItem('tempEmail');
-        
+         localStorage.getItem('role');
         // Show success animation and redirect
         await new Promise(resolve => setTimeout(resolve, 1500));
-        navigate('/login', { 
-          replace: true,
-          state: { verified: true }
-        });
+        const userRole = localStorage.getItem('role');
+        console.log("userRole",userRole);
+        if (userRole === 'donor') {
+          navigate('/login/donor', {
+            replace: true,
+            state: { verified: true }
+          });
+        } else if (userRole === 'beneficiary') {
+          navigate('/login/beneficiary', {
+            replace: true,
+            state: { verified: true }
+          });
+        } else {
+          navigate('/login', { 
+            replace: true,
+            state: { verified: true }
+          });
+        }
       }
     } catch (error) {
       setState(prev => ({ ...prev, verificationStatus: 'failed' }));
@@ -138,7 +152,7 @@ const EmailVerification = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="max-w-md mx-auto mt-16 px-4 sm:px-6 lg:px-8"
+        className="max-w-md mx-auto mt-10 px-4 sm:px-6 lg:px-8"
       >
         <div className="bg-white rounded-xl shadow-xl p-8">
           <div className="text-center">

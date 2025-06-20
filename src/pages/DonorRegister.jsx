@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaUser, FaEye, FaEyeSlash } from 'react-icons/fa';
 import * as Yup from 'yup';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -19,6 +19,8 @@ const DonorRegister = () => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -72,7 +74,7 @@ const DonorRegister = () => {
       
       // Store email temporarily for verification
       localStorage.setItem('tempEmail', formData.email);
-      
+      localStorage.setItem('role', formData.role);
       toast.success('Registration successful! Please check your email for verification code.');
       navigate('/verify-email'); // Redirect to verification page
 
@@ -102,7 +104,7 @@ className="max-w-7xl mx-auto py-8 px-4"    >
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link to="/login/donor" className="font-medium text-blue-600 hover:text-blue-500">
             sign in to your existing account
           </Link>
         </p>
@@ -188,25 +190,30 @@ className="max-w-7xl mx-auto py-8 px-4"    >
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`appearance-none block w-full pl-10 px-3 py-2 border ${
+                  className={`appearance-none block w-full pl-10 pr-10 px-3 py-2 border ${
                     errors.password ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="••••••••"
                 />
-                {errors.password && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-2 text-sm text-red-600"
-                  >
-                    {errors.password}
-                  </motion.p>
-                )}
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-gray-400 hover:text-gray-500 focus:outline-none">
+                    {showPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
+              {errors.password && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-2 text-sm text-red-600"
+                >
+                  {errors.password}
+                </motion.p>
+              )}
             </div>
 
             <div>
@@ -220,25 +227,30 @@ className="max-w-7xl mx-auto py-8 px-4"    >
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`appearance-none block w-full pl-10 px-3 py-2 border ${
+                  className={`appearance-none block w-full pl-10 pr-10 px-3 py-2 border ${
                     errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                   } rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
                   placeholder="••••••••"
                 />
-                {errors.confirmPassword && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-2 text-sm text-red-600"
-                  >
-                    {errors.confirmPassword}
-                  </motion.p>
-                )}
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="text-gray-400 hover:text-gray-500 focus:outline-none">
+                    {showConfirmPassword ? <FaEyeSlash className="h-5 w-5" /> : <FaEye className="h-5 w-5" />}
+                  </button>
+                </div>
               </div>
+              {errors.confirmPassword && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-2 text-sm text-red-600"
+                >
+                  {errors.confirmPassword}
+                </motion.p>
+              )}
             </div>
 
             <div>
